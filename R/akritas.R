@@ -41,12 +41,12 @@
 #'
 #' @examples
 #' library(survival)
-#' fit <- akritas(Surv(time, status) ~ ., data = rats)
+#' fit <- akritas(Surv(time, status) ~ ., data = rats[1:10, ])
 #' print(fit)
 #'
 #' # alternative function calls
-#' akritas(data = rats, time_variable = "time", status_variable = "status")
-#' akritas(x = rats[, c("litter", "rx", "sex")], y = Surv(rats$time, rats$status))
+#' akritas(data = rats[1:10, ], time_variable = "time", status_variable = "status")
+#' akritas(x = rats[1:10, c("litter", "rx", "sex")], y = Surv(rats$time, rats$status))
 #' @export
 akritas <- function(formula = NULL, data = NULL,
                     time_variable = NULL, status_variable = NULL,
@@ -109,9 +109,9 @@ akritas <- function(formula = NULL, data = NULL,
 #' @export
 print.akritas <- function(x, ...) {
   cat("\nAkritas Estimator\n\n")
-  cat("Call:\n ", deparse(object$call))
-  cat("\n\nResponse:\n  Surv(", paste0(colnames(object$y), collapse = ", "), ")\n", sep = "")
-  cat("Features:\n ", setcollapse(object$xnames), "\n")
+  cat("Call:\n ", deparse(x$call))
+  cat("\n\nResponse:\n  Surv(", paste0(colnames(x$y), collapse = ", "), ")\n", sep = "")
+  cat("Features:\n ", setcollapse(x$xnames), "\n")
 }
 
 #' @export
@@ -160,15 +160,15 @@ summary.akritas <- function(object, ...) {
 #'
 #' @examples
 #' library(survival)
-#' train <- 1:100
-#' test <- 101:200
+#' train <- 1:10
+#' test <- 11:20
 #' fit <- akritas(Surv(time, status) ~ ., data = rats[train, ])
 #' predict(fit, newdata = rats[test, ])
 #'
 #' # when lambda = 1, almost identical to Kaplan-Meier
-#' fit <- akritas(Surv(time, status) ~ ., data = rats)
-#' predict_akritas <- predict(fit, newdata = rats, lambda = 1)[1, ]
-#' predict_km <- survfit(Surv(time, status) ~ 1, data = rats)$surv
+#' fit <- akritas(Surv(time, status) ~ ., data = rats[1:100, ])
+#' predict_akritas <- predict(fit, newdata = rats[1:100, ], lambda = 1)[1, ]
+#' predict_km <- survfit(Surv(time, status) ~ 1, data = rats[1:100, ])$surv
 #' plot(predict_akritas, type = "l", xlab = "t", ylab = "S(t)")
 #' lines(predict_km, col = "red")
 #'

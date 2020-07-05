@@ -35,7 +35,8 @@ LearnerSurvAkritas <- R6Class("LearnerSurvAkritas",
         feature_types = c("logical", "integer", "character", "numeric", "factor"),
         predict_types = c("crank", "distr"),
         param_set = ps,
-        man = "mlr3learners.proba::mlr_learners_surv.akritas"
+        man = "mlr3learners.proba::mlr_learners_surv.akritas",
+        packages = "mlr3learners.proba"
       )
     }
   ),

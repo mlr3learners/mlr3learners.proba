@@ -57,12 +57,12 @@ and applying this to the new data.
 }
 \examples{
 library(survival)
-fit <- akritas(Surv(time, status) ~ ., data = rats)
+fit <- akritas(Surv(time, status) ~ ., data = rats[1:10, ])
 print(fit)
 
 # alternative function calls
-akritas(data = rats, time_variable = "time", status_variable = "status")
-akritas(x = rats[, c("litter", "rx", "sex")], y = Surv(rats$time, rats$status))
+akritas(data = rats[1:10, ], time_variable = "time", status_variable = "status")
+akritas(x = rats[1:10, c("litter", "rx", "sex")], y = Surv(rats$time, rats$status))
 }
 \references{
 Akritas, M. G. (1994).

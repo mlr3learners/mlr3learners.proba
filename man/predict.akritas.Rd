@@ -53,15 +53,15 @@ and applying this to the new data.
 }
 \examples{
 library(survival)
-train <- 1:100
-test <- 101:200
+train <- 1:10
+test <- 11:20
 fit <- akritas(Surv(time, status) ~ ., data = rats[train, ])
 predict(fit, newdata = rats[test, ])
 
 # when lambda = 1, almost identical to Kaplan-Meier
-fit <- akritas(Surv(time, status) ~ ., data = rats)
-predict_akritas <- predict(fit, newdata = rats, lambda = 1)[1, ]
-predict_km <- survfit(Surv(time, status) ~ 1, data = rats)$surv
+fit <- akritas(Surv(time, status) ~ ., data = rats[1:100, ])
+predict_akritas <- predict(fit, newdata = rats[1:100, ], lambda = 1)[1, ]
+predict_km <- survfit(Surv(time, status) ~ 1, data = rats[1:100, ])$surv
 plot(predict_akritas, type = "l", xlab = "t", ylab = "S(t)")
 lines(predict_km, col = "red")
 

@@ -5,7 +5,7 @@
 \alias{LearnerSurvAkritas}
 \title{Survival Akritas Estimator Learner}
 \description{
-A \link[mlr3:LearnerSurv]{mlr3::LearnerSurv} implementing the Akritas estimator. Calls \code{\link[=akritas]{akritas()}}.
+A \link[mlr3proba:LearnerSurv]{mlr3proba::LearnerSurv} implementing the Akritas estimator. Calls \code{\link[=akritas]{akritas()}}.
 }
 \section{Dictionary}{
 
@@ -16,7 +16,7 @@ lrn("surv.akritas")
 }
 
 \examples{
-if (requireNamespace("")) {
+if (requireNamespace("mlr3learners.proba")) {
   learner = mlr3::lrn("surv.akritas")
   print(learner)
 

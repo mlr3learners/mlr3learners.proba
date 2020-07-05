@@ -4,7 +4,7 @@
 \name{mlr3learners.proba-package}
 \alias{mlr3learners.proba}
 \alias{mlr3learners.proba-package}
-\title{mlr3learners.proba: Learners for mlr3proba.}
+\title{mlr3learners.proba: Learners for mlr3proba}
 \description{
 Learners for mlr3proba.
 }
