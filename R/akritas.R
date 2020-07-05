@@ -1,0 +1,250 @@
+#' @title Akritas Conditional Non-Parametric Survival Estimator
+#' @name akritas
+#'
+#' @description The Akritas survival estimator is a conditional nearest-neighbours approach to the
+#' more common Kaplan-Meier estimator. Common usage includes IPCW Survival models and measures,
+#' which do not assume that censoring is independent of the covariates.
+#'
+#' @details
+#' This implementation uses a fit/predict interface to allow estimation on unseen data after
+#' fitting on training data. This is achieved by fitting the empirical CDF on the training data
+#' and applying this to the new data.
+#'
+#' @param formula `(formula(1))`\cr
+#' Objet specifying the model fit, left-hand-side of formula should describe a [survival::Surv()]
+#' object.
+#' @param data `(data.frame(1))`\cr
+#' Training data of `data.frame` like object, internally is coerced with [stats::model.matrix()].
+#' @param time_variable `(character(1))`\cr
+#' Alternative method to call the function. Name of the 'time' variable, required if `formula`.
+#' or `x` and `Y` not given.
+#' @param status_variable `(character(1))`\cr
+#' Alternative method to call the function. Name of the 'status' variable, required if `formula`
+#' or `x` and `Y` not given.
+#' @param x `(data.frame(1))`\cr
+#' Alternative method to call the function. Required if `formula, time_variable` and
+#' `status_variable` not given. Data frame like object of features which is internally
+#' coerced with `model.matrix`.
+#' @param y `([survival::Surv()])`\cr
+#' Alternative method to call the function. Required if `formula, time_variable` and
+#' `status_variable` not given. Survival outcome of right-censored observations.
+#' @param ... \cr
+#' Additional arguments, currently unused.
+#'
+#' @references
+#' Akritas, M. G. (1994).
+#' Nearest Neighbor Estimation of a Bivariate Distribution Under Random Censoring.
+#' Ann. Statist., 22(3), 1299–1327.
+#' \doi{10.1214/aos/1176325630}
+#'
+#' @return An object inheriting from class `akritas`.
+#'
+#' @examples
+#' library(survival)
+#' fit <- akritas(Surv(time, status) ~ ., data = rats)
+#' print(fit)
+#'
+#' # alternative function calls
+#' akritas(data = rats, time_variable = "time", status_variable = "status")
+#' akritas(x = rats[, c("litter", "rx", "sex")], y = Surv(rats$time, rats$status))
+#' @export
+akritas <- function(formula = NULL, data = NULL,
+                    time_variable = NULL, status_variable = NULL,
+                    x = NULL, y = NULL, ...) {
+
+  call <- match.call()
+
+  if (!is.null(x) | !is.null(y)) {
+    if (is.null(x) | is.null(y)) {
+      stop("Both 'x' and 'y' must be provided if either non-NULL.")
+    } else {
+      if (is.null(ncol(x))) {
+        stop("'x' should be a data.frame like object.")
+      }
+    }
+  } else if (!is.null(time_variable) | !is.null(status_variable)) {
+    if (is.null(time_variable) | is.null(status_variable) | is.null(data)) {
+      stop("'time_variable', 'status_variable', and 'data' must be provided if either 'time_variable' or 'status_variable' non-NULL.") # nolint
+    } else {
+      checkmate::assertNames(c(time_variable, status_variable),
+        subset.of = colnames(data)
+      )
+      x <- data[, setdiff(colnames(data), c(time_variable, status_variable)), drop = FALSE]
+      y <- Surv(data[, time_variable], data[, status_variable])
+    }
+  } else if (!is.null(formula)) {
+    f <- stats::as.formula(formula, env = data)
+    y <- eval(f[[2]], envir = data)
+
+    if (deparse(f[[3]]) == ".") {
+      if (is.null(data)) {
+        stop("'.' in formula and no 'data' argument")
+      } else {
+        x <- data[, setdiff(colnames(data), c(deparse(f[[2]][[2]]), deparse(f[[2]][[3]]))),
+          drop = FALSE
+        ]
+      }
+    } else {
+      x <- eval(f[[3]], envir = data)
+      if (checkmate::testNumeric(x)) {
+        stop("Only one column in `x`, use Kaplan-Meier instead.")
+      }
+    }
+  }
+
+  checkmate::assertClass(y, "Surv")
+  if (ncol(x) == 1) {
+    stop("Only one column in `x`, use Kaplan-Meier instead.")
+  }
+  y <- as.matrix(y)
+  xnames <- colnames(x)
+  x <- stats::model.matrix(~., x)[, -1, drop = FALSE]
+  Fhat <- distr6::EmpiricalMV$new(x)
+  FX <- Fhat$cdf(data = x)
+  return(structure(list(y = y, x = x, xnames = xnames, Fhat = Fhat, FX = FX, call = call),
+    class = "akritas"
+  ))
+}
+
+#' @export
+print.akritas <- function(x, ...) {
+  cat("\nAkritas Estimator\n\n")
+  cat("Call:\n ", deparse(object$call))
+  cat("\n\nResponse:\n  Surv(", paste0(colnames(object$y), collapse = ", "), ")\n", sep = "")
+  cat("Features:\n ", setcollapse(object$xnames), "\n")
+}
+
+#' @export
+summary.akritas <- function(object, ...) {
+  print.akritas(object, ...)
+}
+
+#' @title Predict method for Akritas Estimator
+#'
+#' @description Predicted values from a fitted Akritas estimator.
+#'
+#' @details
+#' This implementation uses a fit/predict interface to allow estimation on unseen data after
+#' fitting on training data. This is achieved by fitting the empirical CDF on the training data
+#' and applying this to the new data.
+#'
+#' @param object (`akritas(1)`)\cr
+#' Object of class inheriting from `"akritas"`.
+#' @param newdata `(data.frame(1))`\cr
+#' Testing data of `data.frame` like object, internally is coerced with [stats::model.matrix()]. If missing
+#' then training data from fitted object is used.
+#' @param lambda (`numeric(1)`)\cr
+#' Bandwidth parameter for uniform smoothing kernel in nearest neighbours estimation.
+#' The default value of `0.5` is arbitrary and should be chosen by the user.
+#' @param type (`numeric(1)`)\cr
+#' Type of predicted value. Choices are a survival matrix (`"survival"`) (default), which returns a
+#' `data.frame` or [distr6::VectorDistribution()] (see `distr6` param); a relative risk ranking
+#' (`"risk"`), which is the mean of the predicted survival distribution, or both (`"all"`).
+#' @param distr6 `(logical(1))`\cr
+#' If `FALSE` (default) and `type` is `"survival"` or `"all"` returns data.frame of survival
+#' probabilities, otherwise returns a [distr6::VectorDistribution()].
+#' @param ... \cr
+#' Currently ignored.
+#'
+#' @references
+#' Akritas, M. G. (1994).
+#' Nearest Neighbor Estimation of a Bivariate Distribution Under Random Censoring.
+#' Ann. Statist., 22(3), 1299–1327.
+#' \doi{10.1214/aos/1176325630}
+#'
+#' @return A `numeric` if `type = "risk"`, a [distr6::VectorDistribution()] (if `distr6 = TRUE`)
+#' and `type = "survival"`; a `data.frame` if (`distr6 = FALSE`) and `type = "survival"` where
+#' entries are survival probabilities with rows of observations and columns are time-points;
+#' or a list combining above if `type = "all"`.
+#'
+#'
+#' @examples
+#' library(survival)
+#' train <- 1:100
+#' test <- 101:200
+#' fit <- akritas(Surv(time, status) ~ ., data = rats[train, ])
+#' predict(fit, newdata = rats[test, ])
+#'
+#' # when lambda = 1, almost identical to Kaplan-Meier
+#' fit <- akritas(Surv(time, status) ~ ., data = rats)
+#' predict_akritas <- predict(fit, newdata = rats, lambda = 1)[1, ]
+#' predict_km <- survfit(Surv(time, status) ~ 1, data = rats)$surv
+#' plot(predict_akritas, type = "l", xlab = "t", ylab = "S(t)")
+#' lines(predict_km, col = "red")
+#'
+#' # Use distr6 = TRUE to return a distribution
+#' predict_distr <- predict(fit, newdata = rats[test, ], distr6 = TRUE)
+#' predict_distr$survival(100)
+#'
+#' # Return a relative risk ranking with type = "risk"
+#' predict(fit, newdata = rats[test, ], type = "risk")
+#'
+#' # Or survival probabilities and a rank
+#' predict(fit, newdata = rats[test, ], type = "all", distr6 = TRUE)
+#' @export
+predict.akritas <- function(object, newdata, lambda = 0.5,
+                            type = c("survival", "risk", "all"),
+                            distr6 = FALSE, ...) {
+
+  type <- match.arg(type)
+  unique_times <- sort(unique(object$y[, 1, drop = FALSE]))
+  truth <- object$y
+  if (missing(newdata)) {
+    newdata <- object$x
+  } else {
+    newdata <- stats::model.matrix(~., newdata)[, -1, drop = FALSE]
+  }
+
+  ord <- match(colnames(newdata), colnames(object$x), nomatch = NULL)
+  newdata <- newdata[, !is.na(ord)]
+  newdata <- newdata[, ord[!is.na(ord)]]
+  if (!checkmate::testNames(colnames(newdata), identical.to = colnames(object$x))) {
+    mlr3misc::stopf(
+      "Names in newdata should be identical to {%s}.",
+      paste0(colnames(object$x), collapse = ", ")
+    )
+  }
+
+  surv <- C_Akritas(
+    truth = truth,
+    unique_times = unique_times,
+    FX_train = object$FX,
+    FX_predict = object$Fhat$cdf(data = newdata),
+    newdata = newdata,
+    lambda = lambda
+  )
+  colnames(surv) <- round(unique_times, 2)
+
+  ret <- list()
+
+  if (!distr6 & type %in% c("survival", "all")) {
+    ret$surv <- surv
+  }
+
+  if (distr6 | type %in% c("risk", "all")) {
+    cdf <- apply(surv, 1, function(x) list(cdf = 1 - x))
+    distr <- distr6::VectorDistribution$new(
+      distribution = "WeightedDiscrete",
+      shared_params = list(x = unique_times),
+      params = cdf,
+      decorators = c(
+        "CoreStatistics",
+        "ExoticStatistics"
+      )
+    )
+
+    if (distr6) {
+      ret$distr <- distr
+    }
+
+    if (type %in% c("risk", "all")) {
+      ret$risk <- unname(as.numeric(distr$mean()))
+    }
+  }
+
+  if (length(ret) == 1) {
+    return(ret[[1]])
+  } else {
+    return(ret)
+  }
+}
