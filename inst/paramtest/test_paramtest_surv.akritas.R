@@ -21,7 +21,7 @@ test_that("surv.akritas", {
 # example for checking a predict function of a learner
 test_that("surv.akritas_predict", {
   learner = lrn("surv.akritas")
-  fun = predict.akritas
+  fun = predict
   exclude = c(
     "object", # handled via mlr3
     "newdata", # handled via mlr3
