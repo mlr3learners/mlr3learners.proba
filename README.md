@@ -1,6 +1,6 @@
 # mlr3learners.proba
 
-![tic](https://github.com/mlr3learners/mlr3learners.proba/workflows/tic/badge.svg?branch=master)](https://github.com/mlr3learners/mlr3learners.proba/actions)
+[![tic](https://github.com/mlr3learners/mlr3learners.proba/workflows/tic/badge.svg?branch=master)](https://github.com/mlr3learners/mlr3learners.proba/actions)
 [![Parameter Check](https://github.com/mlr3learners/mlr3learners.proba/workflows/Parameter%20Check/badge.svg?branch=master)](https://github.com/mlr3learners/mlr3learners.proba/actions)
 ![mlr3learners.drat](https://github.com/mlr3learners/mlr3learners.proba/workflows/mlr3learners.drat/badge.svg?branch=master)
 [![codecov](https://codecov.io/gh/mlr3learners/mlr3learners.proba/branch/master/graph/badge.svg)](https://codecov.io/gh/mlr3learners/mlr3learners.proba)

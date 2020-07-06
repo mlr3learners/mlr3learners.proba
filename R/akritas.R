@@ -49,8 +49,8 @@
 #' akritas(x = rats[1:10, c("litter", "rx", "sex")], y = Surv(rats$time, rats$status))
 #' @export
 akritas <- function(formula = NULL, data = NULL,
-                    time_variable = NULL, status_variable = NULL,
-                    x = NULL, y = NULL, ...) {
+  time_variable = NULL, status_variable = NULL,
+  x = NULL, y = NULL, ...) {
 
   call <- match.call()
 
@@ -131,8 +131,8 @@ summary.akritas <- function(object, ...) {
 #' @param object (`akritas(1)`)\cr
 #' Object of class inheriting from `"akritas"`.
 #' @param newdata `(data.frame(1))`\cr
-#' Testing data of `data.frame` like object, internally is coerced with [stats::model.matrix()]. If missing
-#' then training data from fitted object is used.
+#' Testing data of `data.frame` like object, internally is coerced with [stats::model.matrix()].
+#' If missing then training data from fitted object is used.
 #' @param lambda (`numeric(1)`)\cr
 #' Bandwidth parameter for uniform smoothing kernel in nearest neighbours estimation.
 #' The default value of `0.5` is arbitrary and should be chosen by the user.
@@ -183,8 +183,8 @@ summary.akritas <- function(object, ...) {
 #' predict(fit, newdata = rats[test, ], type = "all", distr6 = TRUE)
 #' @export
 predict.akritas <- function(object, newdata, lambda = 0.5,
-                            type = c("survival", "risk", "all"),
-                            distr6 = FALSE, ...) {
+  type = c("survival", "risk", "all"),
+  distr6 = FALSE, ...) {
 
   type <- match.arg(type)
   unique_times <- sort(unique(object$y[, 1, drop = FALSE]))

@@ -13,8 +13,9 @@ test_that("akritas", {
   expect_silent(akritas(Surv(time, status) ~ ., data = survival::rats[1:10, ]))
   expect_error(akritas(x = "litter"), "Both 'x' and 'y'")
   expect_error(akritas(time_variable = "time"), "'time_variable'")
-  expect_error(akritas(x = survival::rats[, c("rx", "litter")],
-                       y = survival::rats$time), "Must inherit from")
+  expect_error(akritas(
+    x = survival::rats[, c("rx", "litter")],
+    y = survival::rats$time), "Must inherit from")
   expect_error(akritas(
     x = survival::rats$rx,
     y = Surv(survival::rats$time, survival::rats$status)

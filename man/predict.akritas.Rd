@@ -18,8 +18,8 @@
 Object of class inheriting from \code{"akritas"}.}
 
 \item{newdata}{\code{(data.frame(1))}\cr
-Testing data of \code{data.frame} like object, internally is coerced with \code{\link[stats:model.matrix]{stats::model.matrix()}}. If missing
-then training data from fitted object is used.}
+Testing data of \code{data.frame} like object, internally is coerced with \code{\link[stats:model.matrix]{stats::model.matrix()}}.
+If missing then training data from fitted object is used.}
 
 \item{lambda}{(\code{numeric(1)})\cr
 Bandwidth parameter for uniform smoothing kernel in nearest neighbours estimation.
