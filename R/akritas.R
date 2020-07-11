@@ -137,9 +137,9 @@ summary.akritas <- function(object, ...) {
 #' Bandwidth parameter for uniform smoothing kernel in nearest neighbours estimation.
 #' The default value of `0.5` is arbitrary and should be chosen by the user.
 #' @param type (`numeric(1)`)\cr
-#' Type of predicted value. Choices are a survival matrix (`"survival"`) (default), which returns a
-#' `data.frame` or [distr6::VectorDistribution()] (see `distr6` param); a relative risk ranking
-#' (`"risk"`), which is the mean of the predicted survival distribution, or both (`"all"`).
+#' Type of predicted value. Choices are survival probabilities over all time-points in training
+#' data (`"survival"`) or a relative risk ranking (`"risk"`), which is the mean cumulative hazard
+#' function over all time-points, or both (`"all"`).
 #' @param distr6 `(logical(1))`\cr
 #' If `FALSE` (default) and `type` is `"survival"` or `"all"` returns data.frame of survival
 #' probabilities, otherwise returns a [distr6::VectorDistribution()].
@@ -217,29 +217,25 @@ predict.akritas <- function(object, newdata, lambda = 0.5,
 
   ret <- list()
 
-  if (!distr6 & type %in% c("survival", "all")) {
-    ret$surv <- surv
+  if (type %in% c("survival", "all")) {
+    if (!distr6) {
+      ret$surv <- surv
+    } else {
+      cdf <- apply(surv, 1, function(x) list(cdf = 1 - x))
+      ret$distr <- distr6::VectorDistribution$new(
+        distribution = "WeightedDiscrete",
+        shared_params = list(x = unique_times),
+        params = cdf,
+        decorators = c(
+          "CoreStatistics",
+          "ExoticStatistics"
+        )
+      )
+    }
   }
 
-  if (distr6 | type %in% c("risk", "all")) {
-    cdf <- apply(surv, 1, function(x) list(cdf = 1 - x))
-    distr <- distr6::VectorDistribution$new(
-      distribution = "WeightedDiscrete",
-      shared_params = list(x = unique_times),
-      params = cdf,
-      decorators = c(
-        "CoreStatistics",
-        "ExoticStatistics"
-      )
-    )
-
-    if (distr6) {
-      ret$distr <- distr
-    }
-
-    if (type %in% c("risk", "all")) {
-      ret$risk <- unname(as.numeric(distr$mean()))
-    }
+  if (type %in% c("risk", "all")) {
+    ret$risk <- rowMeans(-log(surv))
   }
 
   if (length(ret) == 1) {
