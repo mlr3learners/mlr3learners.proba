@@ -15,6 +15,8 @@
 #' object.
 #' @param data `(data.frame(1))`\cr
 #' Training data of `data.frame` like object, internally is coerced with [stats::model.matrix()].
+#' @param reverse `(logical(1))`\cr
+#' If `TRUE` fits estimator on censoring distribution, otherwise (default) survival distribution.
 #' @param time_variable `(character(1))`\cr
 #' Alternative method to call the function. Name of the 'time' variable, required if `formula`.
 #' or `x` and `Y` not given.
@@ -48,7 +50,7 @@
 #' akritas(data = rats[1:10, ], time_variable = "time", status_variable = "status")
 #' akritas(x = rats[1:10, c("litter", "rx", "sex")], y = Surv(rats$time, rats$status))
 #' @export
-akritas <- function(formula = NULL, data = NULL,
+akritas <- function(formula = NULL, data = NULL, reverse = FALSE,
   time_variable = NULL, status_variable = NULL,
   x = NULL, y = NULL, ...) {
 
@@ -97,6 +99,9 @@ akritas <- function(formula = NULL, data = NULL,
     stop("Only one column in `x`, use Kaplan-Meier instead.")
   }
   y <- as.matrix(y)
+  if (reverse) {
+    y[, 2] <- 1 - y[, 2]
+  }
   xnames <- colnames(x)
   x <- stats::model.matrix(~., x)[, -1, drop = FALSE]
   Fhat <- distr6::EmpiricalMV$new(x)

@@ -26,7 +26,8 @@ LearnerSurvAkritas <- R6Class("LearnerSurvAkritas",
     initialize = function() {
       ps <- ParamSet$new(
         params = list(
-          ParamDbl$new("lambda", default = 0.5, lower = 0, upper = 1, tags = "predict")
+          ParamDbl$new("lambda", default = 0.5, lower = 0, upper = 1, tags = "predict"),
+          ParamLgl$new("reverse", default = FALSE, tags = "train")
         )
       )
 
@@ -43,7 +44,9 @@ LearnerSurvAkritas <- R6Class("LearnerSurvAkritas",
 
   private = list(
     .train = function(task) {
-      mlr3misc::invoke(akritas, formula = task$formula(), data = as.data.frame(task$data()))
+      pars <- self$param_set$get_values(tags = "train")
+      mlr3misc::invoke(akritas, formula = task$formula(), data = as.data.frame(task$data()),
+                       .args = pars)
     },
 
     .predict = function(task) {

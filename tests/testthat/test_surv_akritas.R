@@ -24,4 +24,8 @@ test_that("akritas", {
   fit <- akritas(Surv(time, status) ~ ., data = survival::rats[1:100, ])
   expect_equal(as.numeric(predict(fit, newdata = survival::rats[1:100, ], lambda = 1)[1, ]),
                survfit(Surv(time, status) ~ 1, data = survival::rats[1:100, ])$surv)
+
+  fit <- akritas(Surv(time, status) ~ ., data = survival::rats[1:100, ], reverse = TRUE)
+  expect_equal(as.numeric(predict(fit, newdata = survival::rats[1:100, ], lambda = 1)[1, ]),
+               survfit(Surv(time, 1 - status) ~ 1, data = survival::rats[1:100, ])$surv)
 })
