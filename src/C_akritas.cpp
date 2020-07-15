@@ -9,28 +9,31 @@ NumericVector C_Akritas(NumericMatrix truth, NumericVector unique_times,
 
   double t;
   double prod;
+  double num;
   double den;
   double FXn;
 
   NumericMatrix surv(newdata.nrow(), unique_times.size());
 
-    for (int n = 0; n < newdata.nrow(); n++) {
-      FXn = FX_predict[n];
-      for (int i = 0; i < unique_times.size(); i++) {
-        t = unique_times[i];
-        prod = 1;
-        for (int j = 0; j < FX_train.size(); j++) {
-          if (truth(j, 0) <= t && truth(j, 1) == 1 && (fabs(FXn - FX_train[j]) <= lambda)) {
-              den = 0;
-              for (int l = 0; l < FX_train.size(); l++) {
-                den += (fabs(FXn - FX_train[l]) <= lambda) * (truth(l, 0) >= truth(j, 0));
-              }
-              prod *= (1 - 1.0/den);
+  for (int n = 0; n < newdata.nrow(); n++) {
+    FXn = FX_predict[n];
+    for (int i = 0; i < unique_times.size(); i++) {
+      prod = 1;
+      for (int j = 0; j <= i; j++) {
+        t = unique_times[j];
+          num = 0;
+          den = 0;
+          for (int l = 0; l < FX_train.size(); l++) {
+            if (fabs(FXn - FX_train[l]) <= lambda && (truth(l, 0) >= t)) {
+              num += (truth(l, 0) == t) * truth(l, 1);
+              den += 1;
+            }
           }
-        }
-        surv(n, i) = prod;
+          prod *= (1 - num/den);
       }
+      surv(n, i) = prod;
     }
+  }
 
-    return surv;
+  return surv;
 }
