@@ -26,9 +26,9 @@ Bandwidth parameter for uniform smoothing kernel in nearest neighbours estimatio
 The default value of \code{0.5} is arbitrary and should be chosen by the user.}
 
 \item{type}{(\code{numeric(1)})\cr
-Type of predicted value. Choices are a survival matrix (\code{"survival"}) (default), which returns a
-\code{data.frame} or \code{\link[distr6:VectorDistribution]{distr6::VectorDistribution()}} (see \code{distr6} param); a relative risk ranking
-(\code{"risk"}), which is the mean of the predicted survival distribution, or both (\code{"all"}).}
+Type of predicted value. Choices are survival probabilities over all time-points in training
+data (\code{"survival"}) or a relative risk ranking (\code{"risk"}), which is the mean cumulative hazard
+function over all time-points, or both (\code{"all"}).}
 
 \item{distr6}{\code{(logical(1))}\cr
 If \code{FALSE} (default) and \code{type} is \code{"survival"} or \code{"all"} returns data.frame of survival
@@ -58,12 +58,11 @@ test <- 11:20
 fit <- akritas(Surv(time, status) ~ ., data = rats[train, ])
 predict(fit, newdata = rats[test, ])
 
-# when lambda = 1, almost identical to Kaplan-Meier
+# when lambda = 1, identical to Kaplan-Meier
 fit <- akritas(Surv(time, status) ~ ., data = rats[1:100, ])
 predict_akritas <- predict(fit, newdata = rats[1:100, ], lambda = 1)[1, ]
 predict_km <- survfit(Surv(time, status) ~ 1, data = rats[1:100, ])$surv
-plot(predict_akritas, type = "l", xlab = "t", ylab = "S(t)")
-lines(predict_km, col = "red")
+all(predict_akritas == predict_km)
 
 # Use distr6 = TRUE to return a distribution
 predict_distr <- predict(fit, newdata = rats[test, ], distr6 = TRUE)
