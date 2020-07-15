@@ -15,7 +15,7 @@ Imports:
     data.table,
     mlr3 (>= 0.3.0),
     mlr3misc,
-    mlr3proba (>= 0.1.6),
+    mlr3proba (>= 0.1.6.9000),
     paradox,
     R6,
     Rcpp (>= 1.0.4),
@@ -29,7 +29,9 @@ Suggests:
 LinkingTo: 
     Rcpp
 Remotes:
-    alan-turing-institute/distr6
+    alan-turing-institute/distr6,
+    xoopR/set6,
+    mlr-org/mlr3proba
 Encoding: UTF-8
 NeedsCompilation: no
 Roxygen: list(markdown = TRUE, r6 = TRUE)
