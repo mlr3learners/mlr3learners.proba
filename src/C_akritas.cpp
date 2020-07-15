@@ -29,7 +29,9 @@ NumericVector C_Akritas(NumericMatrix truth, NumericVector unique_times,
               den += 1;
             }
           }
-          prod *= (1 - num/den);
+          if (den != 0) {
+            prod *= (1 - num/den);
+          }
       }
       surv(n, i) = prod;
     }

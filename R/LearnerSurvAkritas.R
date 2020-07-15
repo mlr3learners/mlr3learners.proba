@@ -43,9 +43,7 @@ LearnerSurvAkritas <- R6Class("LearnerSurvAkritas",
 
   private = list(
     .train = function(task) {
-      formula <- task$formula()
-      data <- task$data()
-      mlr3misc::invoke(akritas, formula = formula, data = as.data.frame(data))
+      mlr3misc::invoke(akritas, formula = task$formula(), data = as.data.frame(task$data()))
     },
 
     .predict = function(task) {
