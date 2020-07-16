@@ -235,7 +235,7 @@ predict.akritas <- function(object, newdata, times = NULL,
 
     find <- findInterval(times, as.numeric(colnames(surv)))
     find[find == 0] <- 1
-    surv <- surv[, find]
+    surv <- surv[, find, drop = FALSE]
     colnames(surv) <- times
   } else {
     surv <- C_Akritas(
