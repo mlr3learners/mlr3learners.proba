@@ -88,23 +88,27 @@ akritas <- function(formula = NULL, data = NULL, reverse = FALSE,
       }
     } else {
       x <- data[, strsplit(deparse(f[[3]]), " + ", TRUE)[[1]], drop = FALSE]
-      if (checkmate::testNumeric(x)) {
-        stop("Only one column in `x`, use Kaplan-Meier instead.")
-      }
+      # if (checkmate::testNumeric(x)) {
+      #   stop("Only one column in `x`, use Kaplan-Meier instead.")
+      # }
     }
   }
 
   checkmate::assertClass(y, "Surv")
-  if (ncol(x) == 1) {
-    stop("Only one column in `x`, use Kaplan-Meier instead.")
-  }
+  # if (ncol(x) == 1) {
+  #   stop("Only one column in `x`, use Kaplan-Meier instead.")
+  # }
   y <- as.matrix(y)
   if (reverse) {
     y[, 2] <- 1 - y[, 2]
   }
   xnames <- colnames(x)
   x <- stats::model.matrix(~., x)[, -1, drop = FALSE]
-  Fhat <- distr6::EmpiricalMV$new(x)
+  if (ncol(x) == 1) {
+    Fhat <- distr6::Empirical$new(x)
+  } else {
+    Fhat <- distr6::EmpiricalMV$new(x)
+  }
   FX <- Fhat$cdf(data = x)
   return(structure(list(y = y, x = x, xnames = xnames, Fhat = Fhat, FX = FX, call = call),
     class = "akritas"
@@ -143,7 +147,8 @@ summary.akritas <- function(object, ...) {
 #' in the training set.
 #' @param lambda (`numeric(1)`)\cr
 #' Bandwidth parameter for uniform smoothing kernel in nearest neighbours estimation.
-#' The default value of `0.5` is arbitrary and should be chosen by the user.
+#' The default value of `0.5` is arbitrary and should be chosen by the user. If `lambda = 1` then
+#' internally [survival::survfit] is called to fit the Kaplan-Meier estimator.
 #' @param type (`numeric(1)`)\cr
 #' Type of predicted value. Choices are survival probabilities over all time-points in training
 #' data (`"survival"`) or a relative risk ranking (`"risk"`), which is the mean cumulative hazard
@@ -210,8 +215,8 @@ predict.akritas <- function(object, newdata, times = NULL,
   }
 
   ord <- match(colnames(newdata), colnames(object$x), nomatch = NULL)
-  newdata <- newdata[, !is.na(ord)]
-  newdata <- newdata[, ord[!is.na(ord)]]
+  newdata <- newdata[, !is.na(ord), drop = FALSE]
+  newdata <- newdata[, ord[!is.na(ord)], drop = FALSE]
   if (!checkmate::testNames(colnames(newdata), identical.to = colnames(object$x))) {
     mlr3misc::stopf(
       "Names in newdata should be identical to {%s}.",
@@ -219,19 +224,30 @@ predict.akritas <- function(object, newdata, times = NULL,
     )
   }
 
-  ord <- order(truth[,1], decreasing = TRUE)
+  ord <- order(truth[, 1], decreasing = TRUE)
   truth <- truth[ord, ]
-  FX_train <- object$FX[ord]
+  fx_train <- object$FX[ord]
 
-  surv <- C_Akritas(
-    truth = truth,
-    times = times,
-    unique_times = unique_times,
-    FX_train = FX_train,
-    FX_predict = object$Fhat$cdf(data = newdata),
-    lambda = lambda
-  )
-  colnames(surv) <- round(times, 2)
+  if (lambda == 1) {
+    surv <- survfit(Surv(time, status) ~ 1, data.frame(object$y))$surv
+    surv <- matrix(surv, nrow(newdata), length(surv), byrow = TRUE,
+                   dimnames = list(NULL, round(unique_times)))
+
+    find <- findInterval(times, as.numeric(colnames(surv)))
+    find[find == 0] <- 1
+    surv <- surv[, find]
+    colnames(surv) <- times
+  } else {
+    surv <- C_Akritas(
+      truth = truth,
+      times = times,
+      unique_times = unique_times,
+      FX_train = fx_train,
+      FX_predict = object$Fhat$cdf(data = newdata),
+      lambda = lambda
+    )
+    colnames(surv) <- round(times, 2)
+  }
 
   ret <- list()
 

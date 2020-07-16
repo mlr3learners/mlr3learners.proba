@@ -28,7 +28,8 @@ in the training set.}
 
 \item{lambda}{(\code{numeric(1)})\cr
 Bandwidth parameter for uniform smoothing kernel in nearest neighbours estimation.
-The default value of \code{0.5} is arbitrary and should be chosen by the user.}
+The default value of \code{0.5} is arbitrary and should be chosen by the user. If \code{lambda = 1} then
+internally \link[survival:survfit]{survival::survfit} is called to fit the Kaplan-Meier estimator.}
 
 \item{type}{(\code{numeric(1)})\cr
 Type of predicted value. Choices are survival probabilities over all time-points in training
