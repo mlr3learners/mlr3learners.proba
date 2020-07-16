@@ -6,18 +6,18 @@
 using namespace Rcpp;
 
 // C_Akritas
-NumericVector C_Akritas(NumericMatrix truth, NumericVector unique_times, NumericVector FX_train, NumericVector FX_predict, NumericMatrix newdata, double lambda);
-RcppExport SEXP _mlr3learners_proba_C_Akritas(SEXP truthSEXP, SEXP unique_timesSEXP, SEXP FX_trainSEXP, SEXP FX_predictSEXP, SEXP newdataSEXP, SEXP lambdaSEXP) {
+NumericVector C_Akritas(NumericMatrix truth, NumericVector times, NumericVector unique_times, NumericVector FX_train, NumericVector FX_predict, double lambda);
+RcppExport SEXP _mlr3learners_proba_C_Akritas(SEXP truthSEXP, SEXP timesSEXP, SEXP unique_timesSEXP, SEXP FX_trainSEXP, SEXP FX_predictSEXP, SEXP lambdaSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< NumericMatrix >::type truth(truthSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type times(timesSEXP);
     Rcpp::traits::input_parameter< NumericVector >::type unique_times(unique_timesSEXP);
     Rcpp::traits::input_parameter< NumericVector >::type FX_train(FX_trainSEXP);
     Rcpp::traits::input_parameter< NumericVector >::type FX_predict(FX_predictSEXP);
-    Rcpp::traits::input_parameter< NumericMatrix >::type newdata(newdataSEXP);
     Rcpp::traits::input_parameter< double >::type lambda(lambdaSEXP);
-    rcpp_result_gen = Rcpp::wrap(C_Akritas(truth, unique_times, FX_train, FX_predict, newdata, lambda));
+    rcpp_result_gen = Rcpp::wrap(C_Akritas(truth, times, unique_times, FX_train, FX_predict, lambda));
     return rcpp_result_gen;
 END_RCPP
 }

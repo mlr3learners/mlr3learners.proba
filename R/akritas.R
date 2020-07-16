@@ -87,7 +87,7 @@ akritas <- function(formula = NULL, data = NULL, reverse = FALSE,
         ]
       }
     } else {
-      x <- eval(f[[3]], envir = data)
+      x <- data[, strsplit(deparse(f[[3]]), " + ", TRUE)[[1]], drop = FALSE]
       if (checkmate::testNumeric(x)) {
         stop("Only one column in `x`, use Kaplan-Meier instead.")
       }
@@ -138,6 +138,9 @@ summary.akritas <- function(object, ...) {
 #' @param newdata `(data.frame(1))`\cr
 #' Testing data of `data.frame` like object, internally is coerced with [stats::model.matrix()].
 #' If missing then training data from fitted object is used.
+#' @param times `(numeric())`\cr
+#' Times at which to evaluate the estimator. If `NULL` (default) then evaluated at all unique times
+#' in the training set.
 #' @param lambda (`numeric(1)`)\cr
 #' Bandwidth parameter for uniform smoothing kernel in nearest neighbours estimation.
 #' The default value of `0.5` is arbitrary and should be chosen by the user.
@@ -186,12 +189,19 @@ summary.akritas <- function(object, ...) {
 #' # Or survival probabilities and a rank
 #' predict(fit, newdata = rats[test, ], type = "all", distr6 = TRUE)
 #' @export
-predict.akritas <- function(object, newdata, lambda = 0.5,
+predict.akritas <- function(object, newdata, times = NULL,
+                            lambda = 0.5,
   type = c("survival", "risk", "all"),
   distr6 = FALSE, ...) {
 
   type <- match.arg(type)
   unique_times <- sort(unique(object$y[, 1, drop = FALSE]))
+  if (is.null(times)) {
+    times <- unique_times
+  } else {
+    times <- sort(unique(times))
+  }
+
   truth <- object$y
   if (missing(newdata)) {
     newdata <- object$x
@@ -209,15 +219,19 @@ predict.akritas <- function(object, newdata, lambda = 0.5,
     )
   }
 
+  ord <- order(truth[,1], decreasing = TRUE)
+  truth <- truth[ord, ]
+  FX_train <- object$FX[ord]
+
   surv <- C_Akritas(
     truth = truth,
-    unique_times = sort(unique_times),
-    FX_train = object$FX,
+    times = times,
+    unique_times = unique_times,
+    FX_train = FX_train,
     FX_predict = object$Fhat$cdf(data = newdata),
-    newdata = newdata,
     lambda = lambda
   )
-  colnames(surv) <- round(unique_times, 2)
+  colnames(surv) <- round(times, 2)
 
   ret <- list()
 

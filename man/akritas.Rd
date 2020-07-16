@@ -7,6 +7,7 @@
 akritas(
   formula = NULL,
   data = NULL,
+  reverse = FALSE,
   time_variable = NULL,
   status_variable = NULL,
   x = NULL,
@@ -21,6 +22,9 @@ object.}
 
 \item{data}{\code{(data.frame(1))}\cr
 Training data of \code{data.frame} like object, internally is coerced with \code{\link[stats:model.matrix]{stats::model.matrix()}}.}
+
+\item{reverse}{\code{(logical(1))}\cr
+If \code{TRUE} fits estimator on censoring distribution, otherwise (default) survival distribution.}
 
 \item{time_variable}{\code{(character(1))}\cr
 Alternative method to call the function. Name of the 'time' variable, required if \code{formula}.

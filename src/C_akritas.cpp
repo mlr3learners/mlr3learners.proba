@@ -2,9 +2,8 @@
 using namespace Rcpp;
 
 // [[Rcpp::export]]
-NumericVector C_Akritas(NumericMatrix truth, NumericVector unique_times,
+NumericVector C_Akritas(NumericMatrix truth, NumericVector times, NumericVector unique_times,
                         NumericVector FX_train, NumericVector FX_predict,
-                        NumericMatrix newdata,
                         double lambda) {
 
   double t;
@@ -12,19 +11,27 @@ NumericVector C_Akritas(NumericMatrix truth, NumericVector unique_times,
   double num;
   double den;
   double FXn;
+  int j;
 
-  NumericMatrix surv(newdata.nrow(), unique_times.size());
+  NumericMatrix surv(FX_predict.size(), times.size());
 
-  for (int n = 0; n < newdata.nrow(); n++) {
+  for (int n = 0; n < FX_predict.size(); n++) {
     FXn = FX_predict[n];
-    for (int i = 0; i < unique_times.size(); i++) {
+    for (int i = 0; i < times.size(); i++) {
       prod = 1;
-      for (int j = 0; j <= i; j++) {
+      j = 0;
+      while (unique_times[j] <= times[i]) {
+        if (j == unique_times.size()) {
+          break;
+        }
+
         t = unique_times[j];
           num = 0;
           den = 0;
           for (int l = 0; l < FX_train.size(); l++) {
-            if (fabs(FXn - FX_train[l]) <= lambda && (truth(l, 0) >= t)) {
+            if (truth(l, 0) < t) {
+              break;
+            } else if (fabs(FXn - FX_train[l]) <= lambda) {
               num += (truth(l, 0) == t) * truth(l, 1);
               den += 1;
             }
@@ -32,6 +39,7 @@ NumericVector C_Akritas(NumericMatrix truth, NumericVector unique_times,
           if (den != 0) {
             prod *= (1 - num/den);
           }
+          j++;
       }
       surv(n, i) = prod;
     }

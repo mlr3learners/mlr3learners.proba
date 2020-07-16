@@ -27,6 +27,7 @@ test_that("surv.akritas_predict", {
     "newdata", # handled via mlr3
     "type", # handled via mlr3
     "distr6", # handled via mlr3
+    "times", # all times returned
     "..." # not used
   )
 
