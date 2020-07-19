@@ -88,16 +88,10 @@ akritas <- function(formula = NULL, data = NULL, reverse = FALSE,
       }
     } else {
       x <- data[, strsplit(deparse(f[[3]]), " + ", TRUE)[[1]], drop = FALSE]
-      # if (checkmate::testNumeric(x)) {
-      #   stop("Only one column in `x`, use Kaplan-Meier instead.")
-      # }
     }
   }
 
   checkmate::assertClass(y, "Surv")
-  # if (ncol(x) == 1) {
-  #   stop("Only one column in `x`, use Kaplan-Meier instead.")
-  # }
   y <- as.matrix(y)
   if (reverse) {
     y[, 2] <- 1 - y[, 2]

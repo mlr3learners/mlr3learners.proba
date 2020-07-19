@@ -8,7 +8,6 @@ test_that("autotest", {
 })
 
 test_that("akritas", {
-  expect_error(akritas(Surv(time, status) ~ litter, data = survival::rats), "Only one")
   expect_error(akritas(Surv(time, status) ~ .))
   expect_silent(akritas(Surv(time, status) ~ ., data = survival::rats[1:10, ]))
   expect_error(akritas(x = "litter"), "Both 'x' and 'y'")
