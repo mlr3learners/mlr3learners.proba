@@ -13,17 +13,19 @@ Depends:
     R (>= 3.1.0)
 Imports:
     data.table,
+    keras,
     mlr3 (>= 0.4.0.9000),
     mlr3misc,
     mlr3proba (>= 0.2.0.9000),
     paradox,
+    reticulate (>= 1.10)
     R6,
     Rcpp (>= 1.0.4),
-    survival
+    survival,
+    tensorflow (>= 2.0.0)
 Suggests:
     checkmate,
     distr6 (>= 1.4.2),
-    keras,
     pracma,
     pseudo,
     rmarkdown,
