@@ -7,6 +7,7 @@ NULL
 #' @import data.table
 #' @import paradox
 #' @import mlr3misc
+#' @import mlr3
 #' @importFrom mlr3proba LearnerSurv LearnerDens PredictionSurv PredictionDens TaskSurv
 #' @importFrom R6 R6Class
 #' @importFrom survival Surv survfit
@@ -19,13 +20,16 @@ register_mlr3 <- function(libname, pkgname) {
 
   # add the learner to the dictionary
   x$add("surv.akritas", LearnerSurvAkritas)
+  x$add("surv.dnn", LearnerSurvDNNSurv)
 }
 
+# keras = NULL
 .onLoad <- function(libname, pkgname) { # nolint
   register_mlr3()
   setHook(packageEvent("mlr3", "onLoad"), function(...) register_mlr3(),
     action = "append"
   )
+  # keras <<- reticulate::import("keras", delay_load = TRUE)
 }
 
 .onUnload <- function(libpath) { # nolint

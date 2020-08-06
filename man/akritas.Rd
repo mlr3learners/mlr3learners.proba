@@ -43,7 +43,7 @@ coerced with \code{model.matrix}.}
 Alternative method to call the function. Required if \verb{formula, time_variable} and
 \code{status_variable} not given. Survival outcome of right-censored observations.}
 
-\item{...}{\cr
+\item{...}{\code{ANY} \cr
 Additional arguments, currently unused.}
 }
 \value{

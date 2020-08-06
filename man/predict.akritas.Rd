@@ -40,7 +40,7 @@ function over all time-points, or both (\code{"all"}).}
 If \code{FALSE} (default) and \code{type} is \code{"survival"} or \code{"all"} returns data.frame of survival
 probabilities, otherwise returns a \code{\link[distr6:VectorDistribution]{distr6::VectorDistribution()}}.}
 
-\item{...}{\cr
+\item{...}{\code{ANY} \cr
 Currently ignored.}
 }
 \value{

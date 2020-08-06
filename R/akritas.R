@@ -30,7 +30,7 @@
 #' @param y `([survival::Surv()])`\cr
 #' Alternative method to call the function. Required if `formula, time_variable` and
 #' `status_variable` not given. Survival outcome of right-censored observations.
-#' @param ... \cr
+#' @param ... `ANY` \cr
 #' Additional arguments, currently unused.
 #'
 #' @references
@@ -150,7 +150,7 @@ summary.akritas <- function(object, ...) {
 #' @param distr6 `(logical(1))`\cr
 #' If `FALSE` (default) and `type` is `"survival"` or `"all"` returns data.frame of survival
 #' probabilities, otherwise returns a [distr6::VectorDistribution()].
-#' @param ... \cr
+#' @param ... `ANY` \cr
 #' Currently ignored.
 #'
 #' @references
@@ -189,7 +189,7 @@ summary.akritas <- function(object, ...) {
 #' predict(fit, newdata = rats[test, ], type = "all", distr6 = TRUE)
 #' @export
 predict.akritas <- function(object, newdata, times = NULL,
-                            lambda = 0.5,
+  lambda = 0.5,
   type = c("survival", "risk", "all"),
   distr6 = FALSE, ...) {
 
@@ -224,8 +224,9 @@ predict.akritas <- function(object, newdata, times = NULL,
 
   if (lambda == 1) {
     surv <- survfit(Surv(time, status) ~ 1, data.frame(object$y))$surv
-    surv <- matrix(surv, nrow(newdata), length(surv), byrow = TRUE,
-                   dimnames = list(NULL, round(unique_times)))
+    surv <- matrix(surv, nrow(newdata), length(surv),
+      byrow = TRUE,
+      dimnames = list(NULL, round(unique_times)))
 
     find <- findInterval(times, as.numeric(colnames(surv)))
     find[find == 0] <- 1

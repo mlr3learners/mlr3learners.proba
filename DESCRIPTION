@@ -23,7 +23,9 @@ Imports:
 Suggests:
     checkmate,
     distr6 (>= 1.4.0),
+    keras,
     pracma,
+    pseudo,
     rmarkdown,
     testthat
 LinkingTo: 

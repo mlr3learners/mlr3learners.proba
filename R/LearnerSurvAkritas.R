@@ -45,8 +45,9 @@ LearnerSurvAkritas <- R6Class("LearnerSurvAkritas",
   private = list(
     .train = function(task) {
       pars <- self$param_set$get_values(tags = "train")
-      mlr3misc::invoke(akritas, formula = task$formula(), data = as.data.frame(task$data()),
-                       .args = pars)
+      mlr3misc::invoke(akritas,
+        formula = task$formula(), data = as.data.frame(task$data()),
+        .args = pars)
     },
 
     .predict = function(task) {
