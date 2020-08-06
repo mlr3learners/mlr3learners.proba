@@ -23,13 +23,13 @@ register_mlr3 <- function(libname, pkgname) {
   x$add("surv.dnn", LearnerSurvDNNSurv)
 }
 
-# keras = NULL
+keras = NULL
 .onLoad <- function(libname, pkgname) { # nolint
   register_mlr3()
   setHook(packageEvent("mlr3", "onLoad"), function(...) register_mlr3(),
     action = "append"
   )
-  # keras <<- reticulate::import("keras", delay_load = TRUE)
+  keras <<- reticulate::import("keras", delay_load = TRUE)
 }
 
 .onUnload <- function(libpath) { # nolint
